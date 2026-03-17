@@ -15,3 +15,4 @@ dependencies = [
 
 [project.scripts]
 dev = "app.main:run"
+ops = "app.cli:main"

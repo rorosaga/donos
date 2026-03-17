@@ -9,12 +9,15 @@ from app.models import (
     DonationRecord,
     IssuedAsset,
     NGOProfile,
+    NGOOperationalDiagnostics,
     TreasuryPayment,
     WalletSecrets,
+    XRPLAccountStatus,
     compute_dono_amount,
 )
 from app.repositories import DonationRepository, NGORepository
 from app.services.donation_processor import DonationProcessor
+from app.services.operations import NGOOperationsService
 from app.services.xrpl.client import XRPLService
 
 
@@ -22,6 +25,8 @@ class FakeXRPLService(XRPLService):
     def __init__(self) -> None:
         self.payments: dict[str, list[TreasuryPayment]] = {}
         self.trustlines: set[tuple[str, str, str]] = set()
+        self.account_statuses: dict[str, XRPLAccountStatus] = {}
+        self.seed_matches: dict[tuple[str, str], bool] = {}
         self.issue_failures_remaining = 0
         self.distribution_failures_remaining = 0
         self.issue_calls = 0
@@ -29,6 +34,29 @@ class FakeXRPLService(XRPLService):
 
     async def get_validated_treasury_payments(self, treasury_address: str) -> list[TreasuryPayment]:
         return list(self.payments.get(treasury_address, []))
+
+    async def get_network_status(self) -> dict[str, str]:
+        return {
+            "server_state": "full",
+            "complete_ledgers": "1-100",
+            "validated_ledger_seq": "100",
+        }
+
+    async def get_account_status(self, *, wallet_address: str) -> XRPLAccountStatus:
+        return self.account_statuses.get(
+            wallet_address,
+            XRPLAccountStatus(
+                address=wallet_address,
+                exists=False,
+                balance_drops=None,
+                owner_count=None,
+                previous_txn_id=None,
+                sequence=None,
+            ),
+        )
+
+    def seed_matches_address(self, *, wallet_seed: str, wallet_address: str) -> bool:
+        return self.seed_matches.get((wallet_seed, wallet_address), True)
 
     async def has_trustline(
         self,
@@ -92,7 +120,7 @@ def build_settings() -> Settings:
         xrpl_poll_interval_seconds=30,
         xrpl_account_tx_limit=20,
         rlusd_currency_code="RLUSD",
-        rlusd_issuer="rRLUSD",
+        rlusd_issuer="rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
         ngo_profiles=[],
     )
 
@@ -131,7 +159,7 @@ def build_payment(
     tx_hash: str = "tx-1",
     amount: str = "10",
     currency_code: str = "RLUSD",
-    issuer_address: str = "rRLUSD",
+    issuer_address: str = "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
 ) -> TreasuryPayment:
     return TreasuryPayment(
         payment_reference=tx_hash,
@@ -239,3 +267,68 @@ def test_distribution_retry_does_not_reissue() -> None:
     assert retried.issuance_tx_hash == "issue-1"
     assert retried.distribution_tx_hash == "distribute-2"
     assert fake_xrpl.issue_calls == 1
+
+
+def test_operations_service_builds_diagnostics() -> None:
+    fake_xrpl = FakeXRPLService()
+    fake_xrpl.account_statuses = {
+        "rTreasury": XRPLAccountStatus(
+            address="rTreasury",
+            exists=True,
+            balance_drops="1000",
+            owner_count=0,
+            previous_txn_id="tx-a",
+            sequence=1,
+        ),
+        "rIssuer": XRPLAccountStatus(
+            address="rIssuer",
+            exists=True,
+            balance_drops="2000",
+            owner_count=1,
+            previous_txn_id="tx-b",
+            sequence=2,
+        ),
+        "rDistributor": XRPLAccountStatus(
+            address="rDistributor",
+            exists=True,
+            balance_drops="3000",
+            owner_count=2,
+            previous_txn_id="tx-c",
+            sequence=3,
+        ),
+    }
+    fake_xrpl.trustlines.add(("rDistributor", "rIssuer", "DONO"))
+    fake_xrpl.trustlines.add(("rDistributor", "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe", "RLUSD"))
+    processor, _ = build_processor(fake_xrpl)
+    operations = NGOOperationsService(
+        settings=build_settings(),
+        ngo_repository=processor._ngo_repository,
+        xrpl_service=fake_xrpl,
+    )
+
+    diagnostics = asyncio.run(operations.get_ngo_diagnostics("wateraid"))
+
+    assert isinstance(diagnostics, NGOOperationalDiagnostics)
+    assert diagnostics.issuer_distributor_trustline_ready is True
+    assert diagnostics.distributor_rlusd_trustline_ready is True
+
+
+def test_operations_service_builds_verification_guide() -> None:
+    fake_xrpl = FakeXRPLService()
+    processor, _ = build_processor(fake_xrpl)
+    operations = NGOOperationsService(
+        settings=build_settings(),
+        ngo_repository=processor._ngo_repository,
+        xrpl_service=fake_xrpl,
+    )
+
+    guide = asyncio.run(
+        operations.build_verification_guide(
+            ngo_id="wateraid",
+            donor_wallet_address="rDonor",
+            rlusd_amount=Decimal("1.9"),
+        )
+    )
+
+    assert guide["expected_dono_amount"] == 4
+    assert guide["trustline_transaction"]["TransactionType"] == "TrustSet"

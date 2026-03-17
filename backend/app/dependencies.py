@@ -4,6 +4,7 @@ from fastapi import Request
 
 from app.repositories import DonationRepository, NGORepository
 from app.services.donation_processor import DonationProcessor
+from app.services.operations import NGOOperationsService
 
 
 def get_donation_repository(request: Request) -> DonationRepository:
@@ -16,3 +17,7 @@ def get_ngo_repository(request: Request) -> NGORepository:
 
 def get_donation_processor(request: Request) -> DonationProcessor:
     return request.app.state.donation_processor
+
+
+def get_operations_service(request: Request) -> NGOOperationsService:
+    return request.app.state.operations_service

@@ -1,15 +1,23 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.dependencies import get_donation_processor, get_ngo_repository
+from app.dependencies import (
+    get_donation_processor,
+    get_ngo_repository,
+    get_operations_service,
+)
 from app.repositories import NGORepository
 from app.schemas.api import (
     NGOResponse,
+    NGOOperationalReadinessResponse,
     TrustlinePrepareRequest,
     TrustlinePrepareResponse,
     TrustlineVerifyRequest,
     TrustlineVerifyResponse,
+    VerificationGuideRequest,
+    VerificationGuideResponse,
 )
 from app.services.donation_processor import DonationProcessor
+from app.services.operations import NGOOperationsService
 
 router = APIRouter(prefix="/ngos", tags=["ngos"])
 
@@ -67,3 +75,33 @@ async def verify_trustline(
         wallet_address=payload.wallet_address,
         trustline_ready=trustline_ready,
     )
+
+
+@router.get("/{ngo_id}/diagnostics", response_model=NGOOperationalReadinessResponse)
+async def get_ngo_diagnostics(
+    ngo_id: str,
+    operations_service: NGOOperationsService = Depends(get_operations_service),
+) -> NGOOperationalReadinessResponse:
+    try:
+        summary = await operations_service.summarize_preflight(ngo_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return NGOOperationalReadinessResponse(**summary)
+
+
+@router.post("/{ngo_id}/verification-guide", response_model=VerificationGuideResponse)
+async def build_verification_guide(
+    ngo_id: str,
+    payload: VerificationGuideRequest,
+    operations_service: NGOOperationsService = Depends(get_operations_service),
+) -> VerificationGuideResponse:
+    try:
+        guide = await operations_service.build_verification_guide(
+            ngo_id=ngo_id,
+            donor_wallet_address=payload.donor_wallet_address,
+            rlusd_amount=payload.rlusd_amount,
+            trustline_limit_value=payload.trustline_limit_value,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return VerificationGuideResponse(**guide)
