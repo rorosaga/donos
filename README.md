@@ -1,23 +1,24 @@
 # donos
 
-Solarpunk donation platform. Transparent giving on XRPL, where donors watch impact grow without touching a wallet.
+Solarpunk donation platform. Transparent giving on XRPL, where donors donate in stablecoins and watch impact grow without touching a wallet.
 
-Built for the **XRPL Commons Hackathon — Challenge 4**.
+Built for the **XRPL Commons Hackathon - Challenge 4**.
 
 ## Architecture
 
-Donors send XRP to NGO treasuries and receive **DONO tokens** as on-chain proof-of-donation receipts. A 3-account pipeline per NGO handles issuance:
+Donors send stablecoin donations to NGO treasuries and receive **DONO tokens** as on-chain proof-of-donation receipts. A 4-account pipeline per NGO handles donation intake and token distribution, while a backend scanner watches treasury activity and triggers issuance:
 
-1. **Issuer** — issues DONO tokens
-2. **Treasury** — receives XRP donations
-3. **Backend scanner** — watches treasury and triggers token issuance
+1. **Donor** - sends stablecoin donations
+2. **Treasury** - receives and stores incoming stablecoin donations
+3. **Issuer** - the NGO's own issuing account, which mints that NGO's DONO tokens
+4. **Distributor** - receives issued DONO tokens for distribution back to donors
 
 ## Project Structure
 
-```
+```text
 donos/
-├── frontend/   # React + Vite + TypeScript + Tailwind
-└── backend/    # Python FastAPI + xrpl-py
+|- frontend/   # React + Vite + TypeScript + Tailwind
+`- backend/    # Python FastAPI + xrpl-py
 ```
 
 ## Getting Started
@@ -27,7 +28,7 @@ donos/
 ```bash
 cd frontend
 npm install
-npm run dev        # → http://localhost:5173
+npm run dev        # -> http://localhost:5173
 ```
 
 ### Backend
@@ -35,7 +36,7 @@ npm run dev        # → http://localhost:5173
 ```bash
 cd backend
 uv sync
-uv run uvicorn app.main:app --reload --port 8000   # → http://localhost:8000
+uv run uvicorn app.main:app --reload --port 8000   # -> http://localhost:8000
 ```
 
 Copy `.env.example` to `.env` before running:
@@ -46,8 +47,8 @@ cp backend/.env.example backend/.env
 
 ## Tech Stack
 
-| Layer    | Stack                                    |
-|----------|------------------------------------------|
-| Frontend | React, Vite, TypeScript, Tailwind CSS    |
-| Backend  | FastAPI, Pydantic, uvicorn               |
-| Chain    | XRPL (xrpl-py), Testnet                 |
+| Layer    | Stack                                 |
+|----------|---------------------------------------|
+| Frontend | React, Vite, TypeScript, Tailwind CSS |
+| Backend  | FastAPI, Pydantic, uvicorn            |
+| Chain    | XRPL (xrpl-py), Testnet               |

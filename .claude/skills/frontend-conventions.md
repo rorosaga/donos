@@ -284,7 +284,7 @@ The user never sees: trustline, XRP Ledger, issued currency, base reserve, IOU, 
 The user sees: donation receipt, verified, transparent, your impact, proof.
 
 ### 2. Donation Flow Must Feel Like 3 Clicks
-Select NGO → Enter amount → Confirm. That's it. All XRPL operations (trustline setup, XRP transfer, token issuance) happen silently in the backend.
+Select NGO → Enter amount → Confirm. That's it. All XRPL operations (trustline setup, stablecoin transfer, token issuance) happen silently in the backend.
 
 ### 3. Notifications Are Personal
 When an NGO uses donated funds: "Maria got her operation thanks to your help!" — not "Transaction 0xAF3... confirmed on ledger."
