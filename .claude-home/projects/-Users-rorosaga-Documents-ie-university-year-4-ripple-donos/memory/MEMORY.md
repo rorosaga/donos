@@ -1,1 +1,1 @@
-- [project_donos.md](project_donos.md) — Donos XRPL hackathon project context, architecture, and tooling choices
+- [project_donos.md](project_donos.md) — Donos XRPL hackathon project: full context, architecture, backend/frontend status, and key gaps

@@ -75,6 +75,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(ngos.router)
+app.include_router(donations.router)
+app.include_router(donors.router)
+
+
 @app.get("/")
 async def health_check():
     return {"status": "ok"}
