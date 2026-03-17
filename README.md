@@ -6,12 +6,14 @@ Built for the **XRPL Commons Hackathon - Challenge 4**.
 
 ## Architecture
 
-Donors send stablecoin donations to NGO treasuries and receive **DONO tokens** as on-chain proof-of-donation receipts. A 4-account pipeline per NGO handles donation intake and token distribution, while a backend scanner watches treasury activity and triggers issuance:
+Donors send `RLUSD` donations to NGO treasuries and receive NGO-issued `DONO` tokens as on-chain proof-of-donation receipts. Each NGO owns its own treasury, issuer, and distributor accounts, while a backend scanner watches treasury activity and triggers issuance after validated payments.
 
 1. **Donor** - sends stablecoin donations
-2. **Treasury** - receives and stores incoming stablecoin donations
-3. **Issuer** - the NGO's own issuing account, which mints that NGO's DONO tokens
-4. **Distributor** - receives issued DONO tokens for distribution back to donors
+2. **Treasury** - the NGO-owned account that receives and stores incoming `RLUSD` donations
+3. **Issuer** - the NGO-owned issuing account that mints that NGO's `DONO` tokens
+4. **Distributor** - the NGO-owned account that receives issued `DONO` and distributes it to donors
+
+The canonical v1 chain architecture is documented in `docs/architecture/donation-infrastructure.md`.
 
 ## Project Structure
 
