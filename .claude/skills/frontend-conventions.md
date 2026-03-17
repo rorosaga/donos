@@ -86,7 +86,50 @@ bg-[radial-gradient(circle,rgba(107,91,78,0.10)_1px,transparent_1px)]
 - Dots are warm-tinted (`--color-bark` at 10% opacity), never black or grey.
 - Grid spacing is 28px — tight enough to feel like graph paper, loose enough to breathe.
 - The dot grid does NOT appear on components/cards — only on the page background behind the liquid glass surfaces.
-- On the homepage hero, the dot grid may fade out or be hidden behind the flower field illustration — that's the one exception.
+- On the homepage hero, the dot grid may fade out or be hidden behind the sky/cloud background — that's the one exception.
+
+---
+
+## Alternative Page Background: Blue Sky with Watercolor Clouds
+
+Some pages — especially the homepage hero and emotionally charged sections — can swap the plain canvas for a **soft blue sky** with watercolor-style clouds. This reinforces the solarpunk optimism: open air, daylight, possibility.
+
+### Mood
+- A pale watercolor sky on handmade paper — not a photo, not a gradient generator
+- Clouds are diffuse, blobby, and imperfect — like wet pigment bleeding into cotton paper
+- The sky should feel hand-painted, not digitally perfect
+
+### CSS Implementation
+Layer soft radial gradients to simulate watercolor cloud blobs over a pale sky:
+```css
+.sky-bg {
+  background-color: #E8F0FA;                    /* pale sky blue */
+  background-image:
+    radial-gradient(ellipse 600px 250px at 15% 20%, rgba(255, 255, 255, 0.7) 0%, transparent 70%),
+    radial-gradient(ellipse 500px 200px at 55% 35%, rgba(255, 255, 255, 0.5) 0%, transparent 65%),
+    radial-gradient(ellipse 450px 180px at 80% 15%, rgba(255, 255, 255, 0.6) 0%, transparent 70%),
+    radial-gradient(ellipse 350px 150px at 35% 50%, rgba(255, 255, 255, 0.35) 0%, transparent 60%);
+}
+```
+
+### Color Tokens
+Add these to `:root` when using sky backgrounds:
+```css
+:root {
+  --color-sky: #E8F0FA;              /* base pale blue */
+  --color-sky-deep: #D0E1F4;         /* slightly richer, for gradients */
+  --color-cloud: rgba(255, 255, 255, 0.6);  /* soft white cloud blobs */
+}
+```
+
+### Rules
+- Use the sky background for **hero sections, landing pages, and celebratory moments** (e.g., donation success). Not for utility pages like settings or forms.
+- Clouds are created with **CSS radial gradients only** — no image files, no SVGs. They should be lightweight and unique per page load if randomized.
+- The sky palette stays pale and desaturated — never vivid blue. Think a hazy spring morning, not a screensaver.
+- The sky blends into the canvas at the bottom of the section using a gradient fade: `linear-gradient(to bottom, var(--color-sky), var(--color-canvas))`.
+- The dot grid is **not used** on sky sections — the clouds replace it. When the page transitions back to canvas below the sky, the dot grid resumes.
+- Liquid glass components look especially good over the sky — the blur picks up the cloud forms and sky blue, creating beautiful depth.
+- Keep clouds **asymmetric and organic** — avoid centered or symmetrical layouts. Scatter them like real clouds.
 
 ---
 
@@ -284,7 +327,7 @@ The user never sees: trustline, XRP Ledger, issued currency, base reserve, IOU, 
 The user sees: donation receipt, verified, transparent, your impact, proof.
 
 ### 2. Donation Flow Must Feel Like 3 Clicks
-Select NGO → Enter amount → Confirm. That's it. All XRPL operations (trustline setup, XRP transfer, token issuance) happen silently in the backend.
+Select NGO → Enter amount → Confirm. That's it. All XRPL operations (trustline setup, stablecoin transfer, token issuance) happen silently in the backend.
 
 ### 3. Notifications Are Personal
 When an NGO uses donated funds: "Maria got her operation thanks to your help!" — not "Transaction 0xAF3... confirmed on ledger."
