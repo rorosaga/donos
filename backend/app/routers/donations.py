@@ -1,42 +1,70 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 
-from app.schemas import (
-    DonationCreate, DonationResponse, DonationListItem, DonorTree,
-)
-from app.services import donation_service
+from app.dependencies import get_donation_processor, get_donation_repository
+from app.repositories import DonationRepository
+from app.schemas.api import DonationResponse, ReprocessRequest, ReprocessResponse
+from app.services.donation_processor import DonationProcessor
 
 router = APIRouter(prefix="/donations", tags=["donations"])
 
 
-@router.post("/", response_model=DonationResponse)
-def create_donation(data: DonationCreate):
-    """Verify an on-chain payment and issue DONO tokens synchronously."""
-    try:
-        return donation_service.process_donation(
-            ngo_id=data.ngo_id,
-            donor_address=data.donor_address,
-            tx_hash=data.tx_hash,
-        )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@router.get("", response_model=list[DonationResponse])
+async def list_donations(
+    ngo_id: str | None = Query(default=None),
+    donor_wallet_address: str | None = Query(default=None),
+    donation_repository: DonationRepository = Depends(get_donation_repository),
+) -> list[DonationResponse]:
+    donations = donation_repository.list(
+        ngo_id=ngo_id,
+        donor_wallet_address=donor_wallet_address,
+    )
+    return [DonationResponse.from_domain(donation) for donation in donations]
 
 
-@router.get("/", response_model=list[DonationResponse])
-def list_donations(ngo_id: str | None = None, donor_id: str | None = None):
-    return donation_service.list_donations(ngo_id=ngo_id, donor_id=donor_id)
-
-
-@router.get("/donor/{donor_address}/tree", response_model=DonorTree)
-def get_donor_tree(donor_address: str):
-    """The most important endpoint — returns the full donor tree for the frontend."""
-    return donation_service.get_donor_tree(donor_address)
+@router.get("/by-payment/{payment_reference}", response_model=DonationResponse)
+async def get_donation_by_payment_reference(
+    payment_reference: str,
+    donation_repository: DonationRepository = Depends(get_donation_repository),
+) -> DonationResponse:
+    donation = donation_repository.get_by_payment_reference(payment_reference)
+    if donation is None:
+        raise HTTPException(status_code=404, detail="Donation not found.")
+    return DonationResponse.from_domain(donation)
 
 
 @router.get("/{donation_id}", response_model=DonationResponse)
-def get_donation(donation_id: str):
-    donation = donation_service.get_donation(donation_id)
-    if not donation:
-        raise HTTPException(status_code=404, detail="Donation not found")
-    return donation
+async def get_donation(
+    donation_id: str,
+    donation_repository: DonationRepository = Depends(get_donation_repository),
+) -> DonationResponse:
+    donation = donation_repository.get(donation_id)
+    if donation is None:
+        raise HTTPException(status_code=404, detail="Donation not found.")
+    return DonationResponse.from_domain(donation)
+
+
+@router.post("/reprocess", response_model=ReprocessResponse)
+async def reprocess_donations(
+    payload: ReprocessRequest,
+    processor: DonationProcessor = Depends(get_donation_processor),
+    donation_repository: DonationRepository = Depends(get_donation_repository),
+) -> ReprocessResponse:
+    processed = []
+    if payload.donation_id is not None:
+        try:
+            processed.append(await processor.process_donation(payload.donation_id))
+        except ValueError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+    elif payload.ngo_id is not None:
+        try:
+            processed = await processor.scan_ngo(payload.ngo_id)
+        except ValueError as exc:
+            raise HTTPException(status_code=404, detail=str(exc)) from exc
+    else:
+        for donation in donation_repository.list():
+            processed.append(await processor.process_donation(donation.donation_id))
+
+    return ReprocessResponse(
+        processed_count=len(processed),
+        donations=[DonationResponse.from_domain(donation) for donation in processed],
+    )

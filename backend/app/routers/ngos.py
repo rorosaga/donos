@@ -1,60 +1,69 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
-from app.schemas import (
-    NGOCreate, NGOResponse, NGOListItem, NGORating,
-    NgoTransactionResponse, ProofCreate, ProofResponse,
+from app.dependencies import get_donation_processor, get_ngo_repository
+from app.repositories import NGORepository
+from app.schemas.api import (
+    NGOResponse,
+    TrustlinePrepareRequest,
+    TrustlinePrepareResponse,
+    TrustlineVerifyRequest,
+    TrustlineVerifyResponse,
 )
-from app.services import ngo_service
-from app.services.rating_service import compute_rating, check_anomalies
+from app.services.donation_processor import DonationProcessor
 
 router = APIRouter(prefix="/ngos", tags=["ngos"])
 
 
-@router.post("/", response_model=NGOResponse)
-def create_ngo(data: NGOCreate):
-    """Register a new NGO — creates 3 XRPL accounts and stores in DB."""
-    try:
-        return ngo_service.register_ngo(data)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.get("/", response_model=list[NGOListItem])
-def list_ngos():
-    return ngo_service.list_ngos()
+@router.get("", response_model=list[NGOResponse])
+async def list_ngos(
+    ngo_repository: NGORepository = Depends(get_ngo_repository),
+) -> list[NGOResponse]:
+    return [NGOResponse.from_domain(ngo) for ngo in ngo_repository.list()]
 
 
 @router.get("/{ngo_id}", response_model=NGOResponse)
-def get_ngo(ngo_id: str):
-    ngo = ngo_service.get_ngo(ngo_id)
-    if not ngo:
-        raise HTTPException(status_code=404, detail="NGO not found")
-    return ngo
+async def get_ngo(
+    ngo_id: str,
+    ngo_repository: NGORepository = Depends(get_ngo_repository),
+) -> NGOResponse:
+    ngo = ngo_repository.get(ngo_id)
+    if ngo is None:
+        raise HTTPException(status_code=404, detail="NGO not found.")
+    return NGOResponse.from_domain(ngo)
 
 
-@router.get("/{ngo_id}/transactions", response_model=list[NgoTransactionResponse])
-def get_ngo_transactions(ngo_id: str):
-    return ngo_service.get_ngo_transactions(ngo_id)
+@router.post("/{ngo_id}/trustline/prepare", response_model=TrustlinePrepareResponse)
+async def prepare_trustline(
+    ngo_id: str,
+    payload: TrustlinePrepareRequest,
+    processor: DonationProcessor = Depends(get_donation_processor),
+) -> TrustlinePrepareResponse:
+    try:
+        prepared = await processor.prepare_trustline(
+            ngo_id=ngo_id,
+            wallet_address=payload.wallet_address,
+            limit_value=payload.limit_value,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return TrustlinePrepareResponse(**prepared)
 
 
-@router.get("/{ngo_id}/rating", response_model=NGORating)
-def get_ngo_rating(ngo_id: str):
-    ngo = ngo_service.get_ngo(ngo_id)
-    if not ngo:
-        raise HTTPException(status_code=404, detail="NGO not found")
-    # Run anomaly checks before returning rating
-    check_anomalies(ngo_id)
-    return compute_rating(ngo_id)
-
-
-@router.post("/{ngo_id}/proofs", response_model=ProofResponse)
-def add_proof(ngo_id: str, data: ProofCreate):
-    ngo = ngo_service.get_ngo(ngo_id)
-    if not ngo:
-        raise HTTPException(status_code=404, detail="NGO not found")
-    return ngo_service.add_proof(
+@router.post("/{ngo_id}/trustline/verify", response_model=TrustlineVerifyResponse)
+async def verify_trustline(
+    ngo_id: str,
+    payload: TrustlineVerifyRequest,
+    processor: DonationProcessor = Depends(get_donation_processor),
+) -> TrustlineVerifyResponse:
+    try:
+        trustline_ready = await processor.verify_trustline(
+            ngo_id=ngo_id,
+            wallet_address=payload.wallet_address,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return TrustlineVerifyResponse(
         ngo_id=ngo_id,
-        ngo_transaction_id=data.ngo_transaction_id,
-        file_url=data.file_url,
-        description=data.description,
+        wallet_address=payload.wallet_address,
+        trustline_ready=trustline_ready,
     )
