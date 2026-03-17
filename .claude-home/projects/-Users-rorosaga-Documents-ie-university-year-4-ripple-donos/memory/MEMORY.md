@@ -1,1 +1,2 @@
 - [project_donos.md](project_donos.md) — Donos XRPL hackathon project: full context, architecture, backend/frontend status, and key gaps
+- [feedback_aesthetic.md](feedback_aesthetic.md) — User wants Ghibli-inspired solarpunk aesthetic: vivid blue sky, lush greens, painterly clouds, nature reclaiming tech
