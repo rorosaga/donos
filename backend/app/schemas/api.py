@@ -1,0 +1,86 @@
+from __future__ import annotations
+
+from datetime import datetime
+from decimal import Decimal
+from typing import Any
+
+from pydantic import BaseModel, ConfigDict
+
+from app.models import DonationProcessingState, DonationRecord, NGOProfile
+
+
+class NGOResponse(BaseModel):
+    ngo_id: str
+    name: str
+    treasury_address: str
+    issuer_address: str
+    distributor_address: str
+    dono_rate: Decimal
+    dono_currency_code: str = "DONO"
+
+    @classmethod
+    def from_domain(cls, ngo: NGOProfile) -> "NGOResponse":
+        return cls(
+            ngo_id=ngo.ngo_id,
+            name=ngo.name,
+            treasury_address=ngo.treasury_address,
+            issuer_address=ngo.issuer_address,
+            distributor_address=ngo.distributor_address,
+            dono_rate=ngo.dono_rate,
+        )
+
+
+class DonationResponse(BaseModel):
+    model_config = ConfigDict(use_enum_values=True)
+
+    donation_id: str
+    payment_reference: str
+    ngo_id: str
+    donor_wallet_address: str
+    treasury_address: str
+    rlusd_amount: Decimal
+    dono_rate: Decimal
+    dono_amount: int
+    state: DonationProcessingState
+    failure_reason: str | None
+    detection_tx_hash: str | None
+    issuance_tx_hash: str | None
+    distribution_tx_hash: str | None
+    created_at: datetime
+    updated_at: datetime
+
+    @classmethod
+    def from_domain(cls, donation: DonationRecord) -> "DonationResponse":
+        return cls(**donation.__dict__)
+
+
+class TrustlinePrepareRequest(BaseModel):
+    wallet_address: str
+    limit_value: str = "1000000000"
+
+
+class TrustlinePrepareResponse(BaseModel):
+    network_url: str
+    issuer_address: str
+    currency_code: str
+    transaction: dict[str, Any]
+
+
+class TrustlineVerifyRequest(BaseModel):
+    wallet_address: str
+
+
+class TrustlineVerifyResponse(BaseModel):
+    ngo_id: str
+    wallet_address: str
+    trustline_ready: bool
+
+
+class ReprocessRequest(BaseModel):
+    donation_id: str | None = None
+    ngo_id: str | None = None
+
+
+class ReprocessResponse(BaseModel):
+    processed_count: int
+    donations: list[DonationResponse]
