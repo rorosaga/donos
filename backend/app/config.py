@@ -5,10 +5,12 @@ import os
 from functools import lru_cache
 
 from dotenv import load_dotenv
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
+from xrpl.core.addresscodec import is_valid_classic_address
 
 
 load_dotenv()
+PLACEHOLDER_RLUSD_ISSUER = "rRLUSDxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 
 class NGOProfileSettings(BaseModel):
@@ -24,6 +26,24 @@ class NGOProfileSettings(BaseModel):
     distributor_seed: str
     dono_rate: float = Field(gt=0)
 
+    @field_validator(
+        "treasury_address",
+        "issuer_address",
+        "distributor_address",
+    )
+    @classmethod
+    def validate_address(cls, value: str) -> str:
+        if not is_valid_classic_address(value):
+            raise ValueError("Must be a valid XRPL classic address.")
+        return value
+
+    @field_validator("treasury_seed", "issuer_seed", "distributor_seed")
+    @classmethod
+    def validate_seed_shape(cls, value: str) -> str:
+        if not value or not value.startswith("s"):
+            raise ValueError("Must be a non-empty XRPL family seed.")
+        return value
+
 
 class Settings(BaseModel):
     model_config = ConfigDict(frozen=True)
@@ -34,6 +54,24 @@ class Settings(BaseModel):
     rlusd_currency_code: str = Field(default="RLUSD", min_length=3, max_length=20)
     rlusd_issuer: str
     ngo_profiles: list[NGOProfileSettings]
+
+    @field_validator("rlusd_issuer")
+    @classmethod
+    def validate_rlusd_issuer(cls, value: str) -> str:
+        if not is_valid_classic_address(value):
+            raise ValueError("RLUSD_ISSUER must be a valid XRPL classic address.")
+        if value == PLACEHOLDER_RLUSD_ISSUER:
+            raise ValueError("RLUSD_ISSUER must not use the placeholder issuer value.")
+        return value
+
+    @model_validator(mode="after")
+    def validate_unique_ngo_ids(self) -> "Settings":
+        ngo_ids = [profile.ngo_id for profile in self.ngo_profiles]
+        duplicates = {ngo_id for ngo_id in ngo_ids if ngo_ids.count(ngo_id) > 1}
+        if duplicates:
+            duplicate_list = ", ".join(sorted(duplicates))
+            raise ValueError(f"Duplicate NGO ids are not allowed: {duplicate_list}.")
+        return self
 
     @classmethod
     def from_env(cls) -> "Settings":

@@ -76,6 +76,54 @@ class TrustlineVerifyResponse(BaseModel):
     trustline_ready: bool
 
 
+class XRPLAccountStatusResponse(BaseModel):
+    address: str
+    exists: bool
+    balance_drops: str | None
+    owner_count: int | None
+    previous_txn_id: str | None
+    sequence: int | None
+
+
+class NGOOperationalDiagnosticsResponse(BaseModel):
+    ngo_id: str
+    network_url: str
+    treasury: XRPLAccountStatusResponse
+    issuer: XRPLAccountStatusResponse
+    distributor: XRPLAccountStatusResponse
+    treasury_seed_matches_address: bool
+    issuer_seed_matches_address: bool
+    distributor_seed_matches_address: bool
+    issuer_distributor_trustline_ready: bool
+    distributor_rlusd_trustline_ready: bool
+
+
+class NGOOperationalReadinessResponse(BaseModel):
+    network_status: dict[str, str]
+    ngo_diagnostics: NGOOperationalDiagnosticsResponse
+
+
+class VerificationGuideRequest(BaseModel):
+    donor_wallet_address: str
+    rlusd_amount: Decimal
+    trustline_limit_value: str = "1000000000"
+
+
+class VerificationGuideResponse(BaseModel):
+    ngo_id: str
+    network_url: str
+    donor_wallet_address: str
+    treasury_address: str
+    issuer_address: str
+    distributor_address: str
+    rlusd_currency_code: str
+    rlusd_issuer: str
+    rlusd_amount: str
+    expected_dono_amount: int
+    trustline_transaction: dict[str, Any]
+    verification_steps: list[str]
+
+
 class ReprocessRequest(BaseModel):
     donation_id: str | None = None
     ngo_id: str | None = None

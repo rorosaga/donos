@@ -44,6 +44,30 @@ class IssuedAsset:
 
 
 @dataclass(frozen=True)
+class XRPLAccountStatus:
+    address: str
+    exists: bool
+    balance_drops: str | None
+    owner_count: int | None
+    previous_txn_id: str | None
+    sequence: int | None
+
+
+@dataclass(frozen=True)
+class NGOOperationalDiagnostics:
+    ngo_id: str
+    network_url: str
+    treasury: XRPLAccountStatus
+    issuer: XRPLAccountStatus
+    distributor: XRPLAccountStatus
+    treasury_seed_matches_address: bool
+    issuer_seed_matches_address: bool
+    distributor_seed_matches_address: bool
+    issuer_distributor_trustline_ready: bool
+    distributor_rlusd_trustline_ready: bool
+
+
+@dataclass(frozen=True)
 class TreasuryPayment:
     payment_reference: str
     tx_hash: str
