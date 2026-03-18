@@ -12,6 +12,7 @@ from app.models import (
     TreasuryPayment,
     compute_dono_amount,
 )
+from app.models.domain import xrpl_currency_code
 from app.repositories import DonationRepository, NGORepository
 from app.services.xrpl.client import XRPLService
 
@@ -161,9 +162,17 @@ class DonationProcessor:
     ) -> DonationRecord | None:
         if not payment.validated:
             return None
-        if payment.currency_code != self._settings.rlusd_currency_code:
-            return None
-        if payment.issuer_address != self._settings.rlusd_issuer:
+
+        # Accept RLUSD payments (handle both human-readable and hex-encoded currency codes)
+        rlusd_hex = xrpl_currency_code(self._settings.rlusd_currency_code)
+        is_rlusd = (
+            payment.currency_code in (self._settings.rlusd_currency_code, rlusd_hex)
+            and payment.issuer_address == self._settings.rlusd_issuer
+        )
+        # Also accept native XRP payments
+        is_xrp = payment.currency_code == "XRP"
+
+        if not (is_rlusd or is_xrp):
             return None
 
         existing = self._donation_repository.get_by_payment_reference(payment.payment_reference)
@@ -183,6 +192,28 @@ class DonationProcessor:
             detection_tx_hash=payment.tx_hash,
         )
         return self._donation_repository.upsert(donation)
+
+    async def find_payment_paths(self, *, ngo_id: str, source_address: str, amount: str) -> dict:
+        ngo = self._require_ngo(ngo_id)
+        rlusd_hex = xrpl_currency_code(self._settings.rlusd_currency_code)
+        destination_amount = {
+            "currency": rlusd_hex,
+            "issuer": self._settings.rlusd_issuer,
+            "value": amount,
+        }
+        paths = await self._xrpl_service.find_payment_paths(
+            source_address=source_address,
+            destination_address=ngo.treasury_address,
+            destination_amount=destination_amount,
+        )
+        return {
+            "source_address": source_address,
+            "destination_address": ngo.treasury_address,
+            "destination_amount": amount,
+            "destination_currency": "RLUSD",
+            "paths": paths,
+            "message": f"Found {len(paths)} payment path(s) to deliver {amount} RLUSD to {ngo.name}",
+        }
 
     def _require_ngo(self, ngo_id: str) -> NGOProfile:
         ngo = self._ngo_repository.get(ngo_id)

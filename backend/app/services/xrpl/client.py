@@ -8,12 +8,13 @@ from xrpl.asyncio.clients import AsyncJsonRpcClient
 from xrpl.asyncio.transaction import submit_and_wait
 from xrpl.core.keypairs import derive_classic_address, derive_keypair
 from xrpl.models.amounts import IssuedCurrencyAmount
-from xrpl.models.requests import AccountInfo, AccountLines, AccountTx, ServerInfo
+from xrpl.models.requests import AccountInfo, AccountLines, AccountTx, RipplePathFind, ServerInfo
 from xrpl.models.transactions import Payment, TrustSet
 from xrpl.wallet import Wallet
 
 from app.config import Settings
 from app.models import IssuedAsset, TreasuryPayment, XRPLAccountStatus
+from app.models.domain import xrpl_currency_code
 
 
 class XRPLService(ABC):
@@ -78,6 +79,17 @@ class XRPLService(ABC):
     ) -> str:
         raise NotImplementedError
 
+    @abstractmethod
+    async def find_payment_paths(
+        self,
+        *,
+        source_address: str,
+        destination_address: str,
+        destination_amount: dict,  # IssuedCurrencyAmount as dict
+    ) -> list[dict]:
+        """Use ripple_path_find to discover cross-currency payment paths."""
+        raise NotImplementedError
+
 
 class XRPLClientError(RuntimeError):
     pass
@@ -112,7 +124,8 @@ class XRPLPyService(XRPLService):
         transactions = response.result.get("transactions", [])
         payments: list[TreasuryPayment] = []
         for entry in transactions:
-            tx = entry.get("tx", {})
+            # xrpl-py may return tx data in "tx" or "tx_json" depending on version
+            tx = entry.get("tx_json", entry.get("tx", {}))
             meta = entry.get("meta", {})
             if tx.get("TransactionType") != "Payment":
                 continue
@@ -121,13 +134,32 @@ class XRPLPyService(XRPLService):
             if not entry.get("validated", False):
                 continue
 
-            delivered_amount = meta.get("delivered_amount", tx.get("Amount"))
-            if not isinstance(delivered_amount, dict):
+            delivered_amount = meta.get("delivered_amount", tx.get("DeliverMax", tx.get("Amount")))
+
+            # Hash may be at entry level or inside tx
+            tx_hash = entry.get("hash", tx.get("hash"))
+            ledger_index = entry.get("ledger_index", tx.get("ledger_index"))
+            if tx_hash is None or ledger_index is None:
                 continue
 
-            tx_hash = tx.get("hash")
-            ledger_index = tx.get("ledger_index")
-            if tx_hash is None or ledger_index is None:
+            if isinstance(delivered_amount, str):
+                # Native XRP payment (amount in drops)
+                xrp_amount = Decimal(delivered_amount) / Decimal("1000000")
+                payments.append(
+                    TreasuryPayment(
+                        payment_reference=tx_hash,
+                        tx_hash=tx_hash,
+                        ledger_index=int(ledger_index),
+                        destination=tx["Destination"],
+                        source_address=tx["Account"],
+                        amount=xrp_amount,
+                        currency_code="XRP",
+                        issuer_address="",  # native XRP has no issuer
+                        validated=True,
+                    )
+                )
+                continue
+            if not isinstance(delivered_amount, dict):
                 continue
 
             payments.append(
@@ -193,6 +225,7 @@ class XRPLPyService(XRPLService):
         issuer_address: str,
         currency_code: str,
     ) -> bool:
+        xrpl_code = xrpl_currency_code(currency_code)
         try:
             response = await self._client.request(
                 AccountLines(account=wallet_address, ledger_index="validated")
@@ -200,7 +233,7 @@ class XRPLPyService(XRPLService):
         except Exception:
             return False
         return any(
-            line.get("account") == issuer_address and line.get("currency") == currency_code
+            line.get("account") == issuer_address and line.get("currency") == xrpl_code
             for line in response.result.get("lines", [])
         )
 
@@ -215,7 +248,7 @@ class XRPLPyService(XRPLService):
         transaction = TrustSet(
             account=wallet_address,
             limit_amount=IssuedCurrencyAmount(
-                currency=currency_code,
+                currency=xrpl_currency_code(currency_code),
                 issuer=issuer_address,
                 value=limit_value,
             ),
@@ -252,6 +285,40 @@ class XRPLPyService(XRPLService):
             amount=amount,
         )
 
+    async def find_payment_paths(
+        self,
+        *,
+        source_address: str,
+        destination_address: str,
+        destination_amount: dict,
+    ) -> list[dict]:
+        request = RipplePathFind(
+            source_account=source_address,
+            destination_account=destination_address,
+            destination_amount=destination_amount,
+        )
+        response = await self._client.request(request)
+        alternatives = response.result.get("alternatives", [])
+
+        paths: list[dict] = []
+        for alt in alternatives:
+            source_amount = alt.get("source_amount")
+            if isinstance(source_amount, str):
+                # Native XRP in drops
+                paths.append({
+                    "source_currency": "XRP",
+                    "source_amount": str(int(source_amount) / 1_000_000),
+                    "paths_computed": alt.get("paths_computed", []),
+                })
+            elif isinstance(source_amount, dict):
+                paths.append({
+                    "source_currency": source_amount.get("currency", ""),
+                    "source_amount": source_amount.get("value", "0"),
+                    "source_issuer": source_amount.get("issuer", ""),
+                    "paths_computed": alt.get("paths_computed", []),
+                })
+        return paths
+
     async def _submit_issued_payment(
         self,
         *,
@@ -265,7 +332,7 @@ class XRPLPyService(XRPLService):
             account=wallet.address,
             destination=destination,
             amount=IssuedCurrencyAmount(
-                currency=issued_asset.currency_code,
+                currency=issued_asset.xrpl_currency,
                 issuer=issued_asset.issuer_address,
                 value=str(amount),
             ),

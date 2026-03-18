@@ -1,1 +1,1 @@
-from . import ngos, donations, donors
+from . import ngos, donations

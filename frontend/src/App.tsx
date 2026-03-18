@@ -1,23 +1,43 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Navbar from './components/Navbar'
-import Home from './pages/Home'
-import Donate from './pages/Donate'
-import Dashboard from './pages/Dashboard'
-import NGOProfile from './pages/NGOProfile'
+import { WalletProvider } from './contexts/WalletContext'
+
+const Landing = lazy(() => import('./pages/Landing'))
+const Connect = lazy(() => import('./pages/Connect'))
+const AppView = lazy(() => import('./pages/AppView'))
+const Donate = lazy(() => import('./pages/Donate'))
+const NGOProfile = lazy(() => import('./pages/NGOProfile'))
+const Profile = lazy(() => import('./pages/Profile'))
+const Initiative = lazy(() => import('./pages/Initiative'))
+
+function Loading() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-sm text-[#8a7a6a]">Loading...</div>
+    </div>
+  )
+}
 
 function App() {
   return (
-    <BrowserRouter>
-      <Navbar />
-      <main style={{ padding: '24px 24px 48px' }}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/donate" element={<Donate />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/ngo/:id" element={<NGOProfile />} />
-        </Routes>
-      </main>
-    </BrowserRouter>
+    <WalletProvider>
+      <BrowserRouter>
+        <Suspense fallback={<Loading />}>
+          <Routes>
+            {/* Public */}
+            <Route path="/" element={<Landing />} />
+            <Route path="/connect" element={<Connect />} />
+
+            {/* Authenticated */}
+            <Route path="/app" element={<AppView />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/donate" element={<Donate />} />
+            <Route path="/ngo/:id" element={<NGOProfile />} />
+            <Route path="/initiative/:id" element={<Initiative />} />
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
+    </WalletProvider>
   )
 }
 

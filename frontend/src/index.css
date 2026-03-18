@@ -1,8 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 @import "tailwindcss";
+
+/* ── Custom Properties ──────────────────────────────────────── */
+:root {
+  --color-canvas: #FAF6F1;
+  --color-sky: #7EC8E3;
+  --color-sky-deep: #4DA6D9;
+  --color-cloud: rgba(255, 255, 255, 0.75);
+}
 
 /* ── Fonts ───────────────────────────────────────────────────── */
 body {
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   color: #2C2416;
   background-color: #FAF6F1;
   background-image: radial-gradient(circle, rgba(44, 36, 22, 0.13) 1px, transparent 1px);
@@ -11,7 +20,27 @@ body {
 }
 
 h1, h2, h3 {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'IvyPresto Headline', 'Playfair Display', Georgia, serif;
+}
+
+/* ── Ghibli Sky ─────────────────────────────────────────────── */
+.sky-bg {
+  background: linear-gradient(180deg, #2E8BC0 0%, #45A3D4 20%, #5DB8E0 40%, #82CCE8 60%, #B8E0F0 78%, var(--color-canvas) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.sky-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse 520px 200px at 8% 22%, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.5) 30%, transparent 55%),
+    radial-gradient(ellipse 440px 170px at 52% 15%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.35) 35%, transparent 50%),
+    radial-gradient(ellipse 480px 190px at 80% 28%, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.4) 32%, transparent 52%),
+    radial-gradient(ellipse 300px 120px at 30% 50%, rgba(255,255,255,0.45) 0%, transparent 42%),
+    radial-gradient(ellipse 260px 100px at 65% 55%, rgba(255,255,255,0.35) 0%, transparent 38%);
+  pointer-events: none;
 }
 
 /* ── Liquid Glass ────────────────────────────────────────────── */
@@ -41,7 +70,7 @@ h1, h2, h3 {
 .btn-primary {
   background: #4A7C59;
   color: #fff;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 600;
   font-size: 15px;
   padding: 12px 24px;
@@ -58,7 +87,7 @@ h1, h2, h3 {
 .btn-ghost {
   background: transparent;
   color: #2C2416;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 500;
   font-size: 14px;
   padding: 8px 16px;
@@ -81,7 +110,7 @@ h1, h2, h3 {
   padding: 10px 14px;
   border: 1px solid rgba(44, 36, 22, 0.15);
   border-radius: 10px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 15px;
   color: #2C2416;
   background: rgba(255, 253, 248, 0.8);

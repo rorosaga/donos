@@ -8,6 +8,7 @@ from app.bootstrap import build_runtime_container
 from app.config import get_settings
 from app.routers.donations import router as donations_router
 from app.routers.ngos import router as ngos_router
+from app.routers.wallet import router as wallet_router
 
 
 @asynccontextmanager
@@ -22,6 +23,7 @@ async def lifespan(app: FastAPI):
     app.state.donation_processor = runtime.donation_processor
     app.state.operations_service = runtime.operations_service
     app.state.donation_poller = runtime.donation_poller
+    app.state.xaman_service = runtime.xaman_service
 
     await runtime.donation_poller.start()
     try:
@@ -40,18 +42,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(ngos.router)
-app.include_router(donations.router)
-app.include_router(donors.router)
+app.include_router(ngos_router)
+app.include_router(donations_router)
+app.include_router(wallet_router)
 
 
 @app.get("/")
 async def health_check():
     return {"status": "ok"}
-
-
-app.include_router(ngos_router)
-app.include_router(donations_router)
 
 
 def run() -> None:

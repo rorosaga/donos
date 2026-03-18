@@ -9,6 +9,7 @@ from app.repositories import DonationRepository, NGORepository
 from app.services.donation_processor import DonationProcessor
 from app.services.operations import NGOOperationsService
 from app.services.poller import DonationPoller
+from app.services.xaman import XamanService
 from app.services.xrpl.client import XRPLPyService
 
 
@@ -21,6 +22,7 @@ class RuntimeContainer:
     donation_processor: DonationProcessor
     operations_service: NGOOperationsService
     donation_poller: DonationPoller
+    xaman_service: XamanService
 
 
 def build_runtime_container(settings: Settings) -> RuntimeContainer:
@@ -61,6 +63,7 @@ def build_runtime_container(settings: Settings) -> RuntimeContainer:
         processor=donation_processor,
         interval_seconds=settings.xrpl_poll_interval_seconds,
     )
+    xaman_service = XamanService(settings)
     return RuntimeContainer(
         settings=settings,
         ngo_repository=ngo_repository,
@@ -69,4 +72,5 @@ def build_runtime_container(settings: Settings) -> RuntimeContainer:
         donation_processor=donation_processor,
         operations_service=operations_service,
         donation_poller=donation_poller,
+        xaman_service=xaman_service,
     )

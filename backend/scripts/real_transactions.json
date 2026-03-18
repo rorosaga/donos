@@ -1,0 +1,75 @@
+{
+  "donor": {
+    "address": "rpK2GkXnCLRKeEc4SmZ4Yr3Cg68Jh9cZqJ",
+    "seed": "sEdVw8P97QzL4m1qdJeA2vKgBMEFXFy"
+  },
+  "rlusd_trustline_hash": "7F0DE51983DDB2C44BA8A5DE7BABB36AE05D4A5AD9022BE37D748B4FAF97F613",
+  "rlusd_issue_hash": "393BAF4B4156C4D224B89F34D20DAC74278B9940BFBE3933208AB28D8E38E55F",
+  "donations": [
+    {
+      "ngo_id": "8c98e479-2db7-4bbd-85ef-fb3c10aad709",
+      "ngo_name": "Clean Water Initiative",
+      "amount": 50,
+      "donor_address": "rpK2GkXnCLRKeEc4SmZ4Yr3Cg68Jh9cZqJ",
+      "treasury_address": "r9NpkP2Xu34htMEd7VPhTm3smVTCr35GkY",
+      "issuer_address": "rppXAyhGSVKfaxo6se4VV9UaRtXRq2Xdn9",
+      "distributor_address": "rswNk5zJ4aQi1roa1XkvjWwWdJJ35zVsCs",
+      "dono_trustline_hash": "5D726E5E9588367ECD269E863278826DF171FB2E4F0C7EC162B74A018A0B759F",
+      "donation_hash": "CDFB103B7E6BE0DE0C9FA685A3182AD6A387A5B539DF542D15F39AAEBA103749",
+      "issuance_hash": "E74B9237B970F536C2B30AC5AB98AEA13D209E653B02911813C4A7FABBFAB72D",
+      "distribution_hash": "B7F9CC0026EC09DAB9BB8868198A80A96ED774E5679229C22A13EDBF71AA779F"
+    },
+    {
+      "ngo_id": "d85563d4-d48a-4f55-9378-2cfe43ab96fc",
+      "ngo_name": "EduAfrica Foundation",
+      "amount": 30,
+      "donor_address": "rpK2GkXnCLRKeEc4SmZ4Yr3Cg68Jh9cZqJ",
+      "treasury_address": "rLbXCck9QTjNXoFmgS18cqH62o4yBkjSTG",
+      "issuer_address": "rMNRLoL8Js4ytBuynAezwbPEcRJ9ufkQzM",
+      "distributor_address": "rM8vwBcEbyE5qjK3ceLxK3grYg1Vct4Yjc",
+      "dono_trustline_hash": "7356C81163AA93845F87F784F2CDC0BF4EE13070DF4F092569C18BB497C4EB12",
+      "donation_hash": "1A33E8ADCCE6A2324EEA7A115FEACAAE6BD2650E431A219B7210FF59A7546231",
+      "issuance_hash": "183B8DE938278DF2FA954B67D3DCE6D8E496D38441F89A393FEBB2FB1FC92F41",
+      "distribution_hash": "3CE59D773A3A290A5FB09A94C676F53C22F759B6C6AE91FB0C961F55A1CFD491"
+    },
+    {
+      "ngo_id": "0682f6f2-f66c-4521-964b-05ca817c3ec3",
+      "ngo_name": "SolarVillages",
+      "amount": 25,
+      "donor_address": "rpK2GkXnCLRKeEc4SmZ4Yr3Cg68Jh9cZqJ",
+      "treasury_address": "rHD87Fu1vM7iBZqVFJXXgBLogMG3sKenMT",
+      "issuer_address": "rUagvsY5rGdWiNUa7c9agCa4YkH92x9ZNy",
+      "distributor_address": "rUjUkyKShpqPfyrvb7NCJwncAWidQYjLoP",
+      "dono_trustline_hash": "96CB70872C88FAA0425C47F6FC139014F4B7860E843EB8647FF40ED92D5FE09E",
+      "donation_hash": "E401B8F228F770EF0F39F0E08F7B52A2C862045868BC76BF262539320160C384",
+      "issuance_hash": "91454525462C78806EBFA2B39A5987CC5DA92C7E3133813FD55ECC18B807B233",
+      "distribution_hash": "53DC58EDA6A93D758AD54926965FF060C9ED1BE5083790F7177FB1DDB02B7624"
+    },
+    {
+      "ngo_id": "fd95f529-fa3f-4ff6-87c7-6db0038c9aea",
+      "ngo_name": "FoodBank Kenya",
+      "amount": 15,
+      "donor_address": "rpK2GkXnCLRKeEc4SmZ4Yr3Cg68Jh9cZqJ",
+      "treasury_address": "rQNjQrLS52KwakfETjStE7GtTAFkqoXNsY",
+      "issuer_address": "rnZZF5qbfazV9t7kFCuWUdogHEHGHrHfoH",
+      "distributor_address": "rBYY3bFwg5AjSAJ2niPtX5sJECq6ENNcy2",
+      "dono_trustline_hash": "6C1817606A941FFDE3A3195864BE67B120127FF1B12FB3A930D383984E09ABF7",
+      "donation_hash": "CC6AD96BB762488051B3DA77DF1BFAEC5E625D018691526B5DD62F2B66F2E70D",
+      "issuance_hash": "F8A3BC7006F799DB074A2B07943D24C1818D0F098DB4E85F3F88C8DFE4CB2464",
+      "distribution_hash": "8AC4730C84F03EE71618180B91BA809F426BF0BD1EED91A9859DDFE97018FF1C"
+    },
+    {
+      "ngo_id": "97be9e06-856c-47a0-acac-c6f9ac3488bf",
+      "ngo_name": "HealthKits Africa",
+      "amount": 10,
+      "donor_address": "rpK2GkXnCLRKeEc4SmZ4Yr3Cg68Jh9cZqJ",
+      "treasury_address": "rfqHHZ8gK9ubtdyRk3Y2azZLhYcHWikmNZ",
+      "issuer_address": "rH4WeuTbVfdWqjNGsnQX5j1YABMDkqi8VG",
+      "distributor_address": "rPQGmTtQZ4cfiL5ThKT2mtg1SpHiqmDWHK",
+      "dono_trustline_hash": "D74810335BAA89E96B9549287E9374A4508B5C727680570C2E3AD7D55EFFE8A3",
+      "donation_hash": "3D4637872CDA9CDDED5421F5ADA53B07F8AFE3F2256DCC0AC86411B933A69C79",
+      "issuance_hash": "C81E1AFC58864D548760F39B50CB4A289BC4F39C1AF0934AFC1C32C1F2BAF89B",
+      "distribution_hash": "D919091C59FCEB9A2AAF9B31BAEEAD641E0E0DE4963EBB8959E8269E09DDAE91"
+    }
+  ]
+}

@@ -132,3 +132,66 @@ class ReprocessRequest(BaseModel):
 class ReprocessResponse(BaseModel):
     processed_count: int
     donations: list[DonationResponse]
+
+
+# --- Donor Tree schemas ---
+
+
+class TreeSpending(BaseModel):
+    id: str
+    destination: str
+    amount: float
+    memo: str | None = None
+    category: str | None = None
+    has_proof: bool = False
+    created_at: str
+
+
+class TreeBranch(BaseModel):
+    ngo_id: str
+    ngo_name: str
+    ngo_logo_url: str | None = None
+    total_donated: float
+    total_dono_tokens: float
+    donation_count: int
+    spending: list[TreeSpending] = []
+
+
+class DonorTree(BaseModel):
+    donor_address: str
+    total_dono_tokens: float
+    total_donated: float
+    ngo_count: int
+    branches: list[TreeBranch]
+
+
+# --- NGO Rating schema ---
+
+
+class NGORating(BaseModel):
+    ngo_id: str
+    overall: float
+    transparency: float
+    activity: float
+    donor_diversity: float
+    total_donations: int
+    unique_donors: int
+    anomaly_flags: list[dict] = []
+
+
+# --- Pathfinding schemas ---
+
+
+class PathfindRequest(BaseModel):
+    source_address: str
+    ngo_id: str
+    destination_amount: str  # amount of RLUSD the NGO should receive
+
+
+class PathfindResponse(BaseModel):
+    source_address: str
+    destination_address: str
+    destination_amount: str
+    destination_currency: str
+    paths: list[dict]
+    message: str  # human readable explanation

@@ -10,6 +10,17 @@ def utc_now() -> datetime:
     return datetime.now(timezone.utc)
 
 
+def xrpl_currency_code(code: str) -> str:
+    """Convert a human-readable currency code to XRPL format.
+
+    XRPL accepts 3-char codes as-is (e.g. 'USD', 'EUR').
+    Codes with 4+ characters must be hex-encoded to 40 chars.
+    """
+    if len(code) <= 3:
+        return code
+    return code.encode("ascii").hex().upper().ljust(40, "0")
+
+
 class DonationProcessingState(StrEnum):
     DETECTED = "detected"
     PENDING_TRUSTLINE = "pending_trustline"
@@ -41,6 +52,11 @@ class WalletSecrets:
 class IssuedAsset:
     currency_code: str
     issuer_address: str
+
+    @property
+    def xrpl_currency(self) -> str:
+        """Currency code in XRPL-compatible format (hex-encoded if >3 chars)."""
+        return xrpl_currency_code(self.currency_code)
 
 
 @dataclass(frozen=True)

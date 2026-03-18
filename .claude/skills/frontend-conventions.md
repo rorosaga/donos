@@ -183,30 +183,64 @@ Use these CSS variables globally. The palette is built around warm canvas tones 
 
 ## Typography
 
-We use **two fonts**. One elegant serif for headings, one clean sans-serif for body. Import from Google Fonts.
+We use **two fonts**. One distinctive serif for personality (headlines, hero text, brand moments), one clean geometric sans-serif for everything else.
+
+### Personality Font: IvyPresto Headline Light
+The signature typeface of Donos. Elegant, editorial, and organic — it immediately signals "this is not a generic tech product." Used for hero headlines, page titles, and moments where the brand speaks.
+
+**Loading**: IvyPresto is a premium font. Self-host the `.woff2` files in `src/assets/fonts/` and load via `@font-face`. If unavailable, fall back to `'Playfair Display', Georgia, serif` (load Playfair from Google Fonts as fallback).
 
 ```css
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+@font-face {
+  font-family: 'IvyPresto Headline';
+  src: url('/fonts/IvyPrestoHeadline-Light.woff2') format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
 
+@font-face {
+  font-family: 'IvyPresto Headline';
+  src: url('/fonts/IvyPrestoHeadline-LightItalic.woff2') format('woff2');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Fallback if IvyPresto not available */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+```
+
+### Body Font: Inter
+Clean, geometric, highly legible at all sizes. Pairs well with IvyPresto's editorial elegance without competing.
+
+```css
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+```
+
+### CSS Variables
+```css
 :root {
-  --font-heading: 'Playfair Display', Georgia, serif;
-  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-heading: 'IvyPresto Headline', 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
 }
 ```
 
 ### Usage Rules
-- **Headings (h1-h3)**: Playfair Display. Use weight 500-600. Can use italic for elegant emphasis.
-- **Body text, UI elements, buttons**: DM Sans. Use weight 400 for body, 500 for labels, 600 for buttons.
-- **Never use Inter, Roboto, Arial, or system defaults.**
+- **Hero headlines, page titles (h1)**: IvyPresto Headline Light (weight 300). This is the brand voice — elegant, light, editorial. Use italic sparingly for emphasis.
+- **Section titles (h2), card titles (h3)**: IvyPresto Headline Light or Inter 600 depending on context. Use IvyPresto for emotional/marketing headings, Inter for functional UI headings.
+- **Body text, UI elements, buttons, labels, inputs**: Inter. Use weight 400 for body, 500 for labels, 600 for buttons/emphasis.
+- **Never use DM Sans, Roboto, Arial, or system defaults.**
 - **Minimum body font size**: 16px. Don't go smaller than 14px for any text.
 
 ### Scale
 ```
-h1: 2.5rem / font-weight: 600   — page titles
-h2: 1.75rem / font-weight: 500  — section titles  
-h3: 1.25rem / font-weight: 500  — card titles
-body: 1rem / font-weight: 400   — paragraphs
-small: 0.875rem / font-weight: 400 — captions, hints
+h1: 2.75rem / IvyPresto 300     — hero & page titles (the brand moment)
+h2: 1.75rem / IvyPresto 300     — section titles
+h3: 1.25rem / Inter 600         — card titles, functional headings
+body: 1rem / Inter 400           — paragraphs
+label: 0.875rem / Inter 500      — form labels, metadata
+small: 0.8125rem / Inter 400     — captions, hints
 ```
 
 ---
@@ -373,4 +407,4 @@ frontend/src/
 
 When asking Claude to build a component, include this context:
 
-> "You are building a component for Donos, a solarpunk donation platform. Follow the conventions in FRONTEND_SKILL.md: use Playfair Display for headings, DM Sans for body, warm canvas backgrounds with a subtle dot grid (var(--color-canvas) + radial-gradient dots), botanical greens (var(--color-leaf)) for actions, Lucide icons, and shadcn components. All component surfaces use liquid glass style (semi-transparent warm white, backdrop-blur, soft border). No dark mode, no blockchain jargon in the UI, generous whitespace. The aesthetic is a sun-drenched flower field — hopeful and organic."
+> "You are building a component for Donos, a solarpunk donation platform. Follow the conventions in FRONTEND_SKILL.md: use IvyPresto Headline Light for hero/page titles (editorial, elegant), Inter for body/UI text, warm canvas backgrounds with a subtle dot grid (var(--color-canvas) + radial-gradient dots), Ghibli-inspired vivid blue sky for hero sections, botanical greens (var(--color-leaf)) for actions, Lucide icons. All component surfaces use liquid glass style (semi-transparent warm white, backdrop-blur, soft border). No dark mode, no blockchain jargon in the UI, generous whitespace. The aesthetic is a Ghibli-inspired solarpunk meadow — lush greens, vivid sky, painterly clouds, hopeful and organic."

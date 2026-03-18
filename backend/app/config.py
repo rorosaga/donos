@@ -54,6 +54,8 @@ class Settings(BaseModel):
     rlusd_currency_code: str = Field(default="RLUSD", min_length=3, max_length=20)
     rlusd_issuer: str
     ngo_profiles: list[NGOProfileSettings]
+    xaman_api_key: str = ""
+    xaman_api_secret: str = ""
 
     @field_validator("rlusd_issuer")
     @classmethod
@@ -94,6 +96,8 @@ class Settings(BaseModel):
                 rlusd_currency_code=os.getenv("RLUSD_CURRENCY_CODE", "RLUSD"),
                 rlusd_issuer=os.getenv("RLUSD_ISSUER", ""),
                 ngo_profiles=ngo_profiles,
+                xaman_api_key=os.getenv("XAMAN_API_KEY", ""),
+                xaman_api_secret=os.getenv("XAMAN_API_SECRET", ""),
             )
         except ValidationError as exc:
             raise ValueError(f"Invalid backend settings: {exc}") from exc

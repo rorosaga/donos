@@ -1,0 +1,63 @@
+{
+  "rlusd_issuer": {
+    "address": "r3dC6NkdCvvsN6dtmfqoeX4HtXkZwd5Kfq",
+    "seed": "sEd7Cxa5FrsxuJ6MDCc6F2Hr7cBgnug"
+  },
+  "ngo_profiles": [
+    {
+      "ngo_id": "8c98e479-2db7-4bbd-85ef-fb3c10aad709",
+      "name": "Clean Water Initiative",
+      "treasury_address": "r9NpkP2Xu34htMEd7VPhTm3smVTCr35GkY",
+      "treasury_seed": "sEdTv3D3yCb9YSVGy4Dwx7SvQGun9E7",
+      "issuer_address": "rppXAyhGSVKfaxo6se4VV9UaRtXRq2Xdn9",
+      "issuer_seed": "sEdTynM7Y4P2qWQFtcmhVrzvWwLoDPe",
+      "distributor_address": "rswNk5zJ4aQi1roa1XkvjWwWdJJ35zVsCs",
+      "distributor_seed": "sEdSQNRc55UtSsBTYsvcxfAsCsmnFc6",
+      "dono_rate": "1"
+    },
+    {
+      "ngo_id": "d85563d4-d48a-4f55-9378-2cfe43ab96fc",
+      "name": "EduAfrica Foundation",
+      "treasury_address": "rLbXCck9QTjNXoFmgS18cqH62o4yBkjSTG",
+      "treasury_seed": "sEdTku3hqbBUMv6gkmH132QC2D244C4",
+      "issuer_address": "rMNRLoL8Js4ytBuynAezwbPEcRJ9ufkQzM",
+      "issuer_seed": "sEd7tX7xskcwVNvKBENFTG6dqeMYYCA",
+      "distributor_address": "rM8vwBcEbyE5qjK3ceLxK3grYg1Vct4Yjc",
+      "distributor_seed": "sEdSMpk1KJt5XeETscS2WGv6J24KdSC",
+      "dono_rate": "1"
+    },
+    {
+      "ngo_id": "0682f6f2-f66c-4521-964b-05ca817c3ec3",
+      "name": "SolarVillages",
+      "treasury_address": "rHD87Fu1vM7iBZqVFJXXgBLogMG3sKenMT",
+      "treasury_seed": "sEdTdskmsHG3yBx7g8NTB7PDbba8Xc9",
+      "issuer_address": "rUagvsY5rGdWiNUa7c9agCa4YkH92x9ZNy",
+      "issuer_seed": "sEd746tVutuiFk7mHEF2ppspxGzurY1",
+      "distributor_address": "rUjUkyKShpqPfyrvb7NCJwncAWidQYjLoP",
+      "distributor_seed": "sEdTqGUU54YNH4E8ktBBoL1iAZoekk3",
+      "dono_rate": "1"
+    },
+    {
+      "ngo_id": "fd95f529-fa3f-4ff6-87c7-6db0038c9aea",
+      "name": "FoodBank Kenya",
+      "treasury_address": "rQNjQrLS52KwakfETjStE7GtTAFkqoXNsY",
+      "treasury_seed": "sEdTimzRabtBve4CYq5Dxb6sxBnVwU7",
+      "issuer_address": "rnZZF5qbfazV9t7kFCuWUdogHEHGHrHfoH",
+      "issuer_seed": "sEdVfdLTsuhLH1v8qChdRTYyVpL2iZ2",
+      "distributor_address": "rBYY3bFwg5AjSAJ2niPtX5sJECq6ENNcy2",
+      "distributor_seed": "sEdTMFs6PTCgwCxnuxE6WUxw3eXsXcM",
+      "dono_rate": "1"
+    },
+    {
+      "ngo_id": "97be9e06-856c-47a0-acac-c6f9ac3488bf",
+      "name": "HealthKits Africa",
+      "treasury_address": "rfqHHZ8gK9ubtdyRk3Y2azZLhYcHWikmNZ",
+      "treasury_seed": "sEdTqVomC6c4edWqLfSiXYn5W5n4zp7",
+      "issuer_address": "rH4WeuTbVfdWqjNGsnQX5j1YABMDkqi8VG",
+      "issuer_seed": "sEdV2ygJj7dq9NaujWkMNZkjP7cDQ6c",
+      "distributor_address": "rPQGmTtQZ4cfiL5ThKT2mtg1SpHiqmDWHK",
+      "distributor_seed": "sEd7a1VJUFJsqoXLkXRu8ofhDszwfwW",
+      "dono_rate": "1"
+    }
+  ]
+}
