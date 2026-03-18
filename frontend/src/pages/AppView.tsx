@@ -322,7 +322,7 @@ function DetailPanel({ branch, colorIdx, onClose }: { branch: TreeBranch; colorI
   const navigate = useNavigate()
   const color = PETAL_COLORS[colorIdx % PETAL_COLORS.length]
   const spentTotal = branch.spending.reduce((s, sp) => s + sp.amount, 0)
-  const traced = branch.total_donated > 0 ? Math.round((spentTotal / branch.total_donated) * 100) : 0
+  const traced = branch.total_donated > 0 ? Math.min(100, Math.round((spentTotal / branch.total_donated) * 100)) : 0
   const proofs = branch.spending.filter((s) => s.has_proof).length
 
   return (
@@ -409,7 +409,7 @@ function DetailPanel({ branch, colorIdx, onClose }: { branch: TreeBranch; colorI
 function StatsRow({ tree }: { tree: DonorTree }) {
   const allSpending = tree.branches.flatMap((b) => b.spending)
   const spentTotal = allSpending.reduce((s, sp) => s + sp.amount, 0)
-  const traced = tree.total_donated > 0 ? Math.round((spentTotal / tree.total_donated) * 100) : 0
+  const traced = tree.total_donated > 0 ? Math.min(100, Math.round((spentTotal / tree.total_donated) * 100)) : 0
   const proofCount = allSpending.filter((s) => s.has_proof).length
   const stage = bloomStage(tree.total_donated)
 

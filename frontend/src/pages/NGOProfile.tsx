@@ -649,6 +649,31 @@ export default function NGOProfile() {
       .catch(() => {}) // silently fall back to mock data
   }, [id, address])
 
+  // Re-fetch every 10 seconds to pick up new donations
+  useEffect(() => {
+    if (!address) return
+    const interval = setInterval(() => {
+      fetchDonations({ donor_wallet_address: address })
+        .then((real: DonationResponse[]) => {
+          const mapped: Donation[] = real
+            .filter(d => {
+              const s = d.state || d.processing_state
+              return s === 'sent_to_donor' || s === 'issued_to_distributor'
+            })
+            .map(d => ({
+              id: d.donation_id,
+              amount: Number(d.rlusd_amount),
+              date: d.created_at.split('T')[0],
+              status: ((d.state || d.processing_state) === 'sent_to_donor' ? 'completed' : 'pending') as 'completed' | 'pending',
+              tx_hash: d.detection_tx_hash || d.payment_reference,
+            }))
+          setLiveDonations(mapped)
+        })
+        .catch(() => {})
+    }, 10000)
+    return () => clearInterval(interval)
+  }, [id, address])
+
   // Merge: mock donations + real ones (deduplicate by tx_hash)
   const allDonations = [...ngo.my_donations]
   for (const live of liveDonations) {
