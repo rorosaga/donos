@@ -675,8 +675,21 @@ export default function NGOProfile() {
         : '#B93C3C'
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-5xl mx-auto py-8 px-4">
+    <div className="min-h-screen relative">
+      {/* ── Sky background with clouds + flowers ── */}
+      <div className="fixed inset-0 z-0">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#2E8BC0] via-[#5DB8E0] via-60% to-[#B8E0F0]" />
+        <img src="/assets/cloud1.png" alt="" className="absolute top-[5%] left-[2%] w-[35%] max-w-[400px] opacity-80 pointer-events-none select-none" />
+        <img src="/assets/cloud2.png" alt="" className="absolute top-[12%] right-[5%] w-[28%] max-w-[350px] opacity-70 pointer-events-none select-none" />
+        <img src="/assets/flowers_corners.png" alt="" className="absolute bottom-0 left-0 right-0 w-full pointer-events-none select-none" />
+      </div>
+
+      {/* ── App window ── */}
+      <div className="relative z-10 min-h-screen pt-6 pb-12 px-4 md:px-8">
+        <div className="max-w-5xl mx-auto bg-[#FAF6F1] rounded-3xl shadow-[0_8px_60px_rgba(44,36,22,0.12)] overflow-hidden"
+          style={{ backgroundImage: 'radial-gradient(circle, rgba(44, 36, 22, 0.13) 1px, transparent 1px)', backgroundSize: '28px 28px' }}
+        >
+      <div className="py-8 px-4 sm:px-8">
         {/* -- Top Bar -- */}
         <div className="flex items-center justify-between mb-6">
           <Link
@@ -928,6 +941,31 @@ export default function NGOProfile() {
                 ))}
               </div>
             </div>
+
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-[#2C2416]/70 uppercase tracking-wide mb-3">Trustline Model</h3>
+              <div className="text-sm text-[#2C2416]/70 space-y-2">
+                <p>Donors establish a <span className="font-semibold text-[#2C2416]">trustline</span> to the NGO's issuer account to receive DONO receipt tokens. This is a one-time authorization per NGO.</p>
+                <p>DONO tokens use currency code <span className="font-mono font-semibold text-[#4A7C59]">DONO</span> and are distinguished by issuer address — each NGO issues its own tokens.</p>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold text-[#2C2416]/70 uppercase tracking-wide mb-3">Base Reserve Info</h3>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="bg-[#2C2416]/[0.03] rounded-lg p-3">
+                  <p className="text-xs text-[#2C2416]/50 mb-1">Account base reserve</p>
+                  <p className="text-base font-bold text-[#2C2416]">1 XRP</p>
+                </div>
+                <div className="bg-[#2C2416]/[0.03] rounded-lg p-3">
+                  <p className="text-xs text-[#2C2416]/50 mb-1">Per trustline reserve</p>
+                  <p className="text-base font-bold text-[#2C2416]">0.2 XRP</p>
+                </div>
+              </div>
+              <p className="text-xs text-[#2C2416]/50 leading-relaxed">
+                Every XRPL account requires a minimum 1 XRP base reserve. Each trustline (e.g., for DONO or RLUSD) adds 0.2 XRP to the owner reserve. These reserves are not spent — they are locked to prevent ledger spam and are returned when trustlines are removed.
+              </p>
+            </div>
           </div>
         </div>
 
@@ -952,6 +990,8 @@ export default function NGOProfile() {
             <ScoreBar label="Activity" value={ngo.rating.activity} />
             <ScoreBar label="Donor Diversity" value={ngo.rating.donor_diversity} />
           </div>
+        </div>
+      </div>
         </div>
       </div>
     </div>

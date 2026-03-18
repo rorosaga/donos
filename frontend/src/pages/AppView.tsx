@@ -515,7 +515,21 @@ export default function AppView() {
     : 0
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen relative">
+      {/* ── Sky background with clouds + flowers ── */}
+      <div className="fixed inset-0 z-0">
+        <div className="absolute inset-0 bg-gradient-to-b from-[#2E8BC0] via-[#5DB8E0] via-60% to-[#B8E0F0]" />
+        <img src="/assets/cloud1.png" alt="" className="absolute top-[5%] left-[2%] w-[35%] max-w-[400px] opacity-80 pointer-events-none select-none" />
+        <img src="/assets/cloud2.png" alt="" className="absolute top-[12%] right-[5%] w-[28%] max-w-[350px] opacity-70 pointer-events-none select-none" />
+        <img src="/assets/cloud2.png" alt="" className="absolute top-[35%] left-[10%] w-[20%] max-w-[250px] opacity-40 pointer-events-none select-none" />
+        <img src="/assets/flowers_corners.png" alt="" className="absolute bottom-0 left-0 right-0 w-full pointer-events-none select-none" />
+      </div>
+
+      {/* ── App window ── */}
+      <div className="relative z-10 min-h-screen pt-6 pb-12 px-4 md:px-8">
+        <div className="max-w-6xl mx-auto bg-[#FAF6F1] rounded-3xl shadow-[0_8px_60px_rgba(44,36,22,0.12)] overflow-hidden"
+          style={{ backgroundImage: 'radial-gradient(circle, rgba(44, 36, 22, 0.13) 1px, transparent 1px)', backgroundSize: '28px 28px' }}
+        >
       {/* ── Top bar ── */}
       <div className="flex items-center justify-between px-6 md:px-12 py-4">
         <Link to="/" className="flex items-center gap-2">
@@ -626,6 +640,8 @@ export default function AppView() {
               </div>
             ))}
           </div>
+        </div>
+      </div>
         </div>
       </div>
     </div>
